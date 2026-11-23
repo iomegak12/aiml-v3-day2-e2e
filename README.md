@@ -3,9 +3,11 @@
 ML training demonstration for **NetCore TAC Desk** (fictional networking vendor): predict ticket resolution hours at triage time.
 
 - Business use case: [docs/business-use-case.txt](docs/business-use-case.txt)
-- Session logs (prompts + Q&A): [docs/01-initial-setup-data-generation.md](docs/01-initial-setup-data-generation.md), [docs/02-model-rest-api.md](docs/02-model-rest-api.md)
+- Session logs (prompts + Q&A): [docs/01-initial-setup-data-generation.md](docs/01-initial-setup-data-generation.md), [docs/02-model-rest-api.md](docs/02-model-rest-api.md), [docs/03-web-ui.md](docs/03-web-ui.md)
+- Build prompts: [docs/prompts/](docs/prompts/) — `001` REST API, `002` web UI
+- Web UI theme options (open in a browser): [docs/design/theme-options.html](docs/design/theme-options.html) — NetCore Light / Dark chosen
 - Lecture notes: `.temp/notebook-lecture-notes.md` (instructor-only, git-ignored); each entry matches a `[Cnn]` tag in the notebook
-- Topics: Data Quality, EDA, Feature Engineering, Pipelines, Regression, Model Serving (REST API)
+- Topics: Data Quality, EDA, Feature Engineering, Pipelines, Regression, Model Serving (REST API), Web UI (NGINX)
 
 ## Project Structure
 
@@ -14,7 +16,7 @@ day2/
 ├── .github/
 │   └── copilot-instructions.md   # Copilot pointer → AGENTS.md
 ├── data/                         # Sample / synthetic data (+ sample_prediction_request.json)
-├── docs/                         # Project & ML documentation (+ prompts/)
+├── docs/                         # Project & ML documentation (+ prompts/, design/)
 ├── models/                       # Trained model artefacts (git-ignored, rebuilt by train_model.py)
 ├── notebooks/
 │   ├── ticket-resolution-ml-workflow.ipynb      # Day 2 ML workflow (slim student version)
@@ -42,10 +44,21 @@ day2/
 │           ├── rate_limit.py     # Per-IP rate limiter + middleware
 │           └── request_id.py     # X-Request-ID middleware
 ├── tests/                        # pytest unit tests
+│   └── web/                      # node --test unit tests for web/site/js (*.test.mjs)
+├── web/                          # Web UI image (NGINX + static site)
+│   ├── Dockerfile                # nginx-unprivileged, non-root, port 8080
+│   ├── Dockerfile.dockerignore   # build-context allow-list for the web image
+│   ├── nginx/                    # default.conf, security-headers.conf, proxy.conf
+│   └── site/
+│       ├── index.html            # Home: README rendered as HTML
+│       ├── register.html         # Register Ticket: form + sample chips → ETA
+│       ├── css/                  # tokens.css (NetCore light/dark), base.css, components.css
+│       ├── js/                   # config, payload, chips, eta, api, history, theme, markdown (+ page scripts)
+│       └── vendor/               # marked 18.1.3 (ESM build) + licence
 ├── .env.example                  # Configuration template (copy to .env)
-├── Dockerfile                    # Multi-stage slim image, non-root
-├── docker-compose.yml            # eta-api service
-├── Makefile                      # build / start / stop / predict shortcuts
+├── Dockerfile                    # API image: multi-stage slim, non-root
+├── docker-compose.yml            # eta-api (internal) + web (NGINX, published)
+├── Makefile                      # build / start / stop / predict / test-web shortcuts
 ├── requirements.lock             # Pinned runtime dependencies for Docker
 ├── AGENTS.md                     # AI assistant rules (single source of truth)
 ├── CLAUDE.md                     # Claude Code pointer → AGENTS.md
@@ -126,29 +139,30 @@ uv run uvicorn netcore_tac.api.main:app --no-proxy-headers   # 3. serve on http:
 ### Docker / Compose
 
 ```bash
-uv run python scripts/train_model.py     # the model is baked into the image
-docker compose up --build -d             # service eta-api on http://127.0.0.1:${PORT:-8000}
-docker compose ps                        # STATUS shows (healthy)
+uv run python scripts/train_model.py     # the model is baked into the API image
+docker compose up --build -d --wait      # eta-api (internal) + web on http://localhost:${WEB_PORT:-80}
+docker compose ps                        # both services show (healthy)
 docker compose down
 ```
 
-- Image: multi-stage `python:3.12-slim`, non-root user (UID 10001), single uvicorn worker, built-in `HEALTHCHECK`
-- Compose: `read_only` filesystem + `/tmp` tmpfs, `no-new-privileges`, 512 MB memory limit, `restart: unless-stopped`
-- Image size (0.3.0): **566 MB** on disk / 133 MB compressed, vs 1.62 GB / 430 MB for full `python:3.12` (library test suites are removed at build time)
+- In Compose the API is **not published**: browsers and curl reach it through NGINX (see [Web UI](#web-ui)); `eta-api` runs with `TRUST_PROXY_HEADERS=true`
+- API image: multi-stage `python:3.12-slim`, non-root user (UID 10001), single uvicorn worker, built-in `HEALTHCHECK`
+- Compose: `read_only` filesystem + `/tmp` tmpfs, `no-new-privileges`, memory limits (API 512 MB, web 128 MB), `restart: unless-stopped`
+- Image sizes (0.4.0): API **566 MB** on disk / 133 MB compressed (vs 1.62 GB / 430 MB for full `python:3.12`; library test suites removed at build time); web **90 MB** / 26 MB
 
 ### Makefile Shortcuts
 
 ```bash
 make            # list targets (help)
-make build      # trains the model first if models/eta_model.joblib is missing, then builds the image
-make start      # docker compose up -d --wait (returns once the container is healthy)
-make predict    # POST data/sample_prediction_request.json to /api/v1/predictions
+make build      # both images; trains the model first if models/eta_model.joblib is missing
+make start      # docker compose up -d --wait (returns once API and web are healthy)
+make predict    # POST data/sample_prediction_request.json through NGINX
 make stop       # docker compose down
 ```
 
-- Also: `make status`, `make logs`, `make train`, `make test`, `make lock`
-- Another port: `make predict PORT=8080` (or set `PORT` in `.env`, which the Makefile reads)
-- Requires GNU Make (Windows: `choco install make`) and curl; works from PowerShell, cmd and Git Bash
+- Also: `make build-api`, `make build-web`, `make status`, `make logs`, `make train`, `make test`, `make test-web`, `make lock`
+- Another port: `make start predict WEB_PORT=8080` (or set `WEB_PORT` in `.env`, which the Makefile reads)
+- Requires GNU Make (Windows: `choco install make`), curl and Node ≥ 22 (for `test-web`); works from PowerShell, cmd and Git Bash
 
 ### Endpoints
 
@@ -161,6 +175,8 @@ make stop       # docker compose down
 | GET | `/openapi.json` | OpenAPI schema | Yes |
 
 ### Examples
+
+Local uvicorn (port 8000). With Docker Compose use `http://localhost/api/v1/predictions` instead; `/health` and `/ready` stay internal.
 
 ```bash
 curl -s -X POST http://127.0.0.1:8000/api/v1/predictions \
@@ -185,14 +201,15 @@ curl -s http://127.0.0.1:8000/ready      # {"status":"ready","model_version":"0.
 | `APP_NAME` | NetCore TAC ETA API | Title shown in OpenAPI |
 | `APP_ENV` | development | development / production |
 | `HOST` | 0.0.0.0 | Bind address |
-| `PORT` | 8000 | Bind port (Compose: published host port) |
+| `PORT` | 8000 | Bind port for local uvicorn (Compose: fixed 8000, internal) |
+| `WEB_PORT` | 80 | Compose / Makefile: host port of the web UI (use 8080 if 80 is taken) |
 | `LOG_LEVEL` | info | uvicorn / app log level |
 | `MODEL_PATH` | models/eta_model.joblib | Trained pipeline |
 | `MODEL_METADATA_PATH` | models/eta_model.json | Model metadata |
 | `RATE_LIMIT_REQUESTS` | 100 | Requests allowed per window |
 | `RATE_LIMIT_WINDOW_SECONDS` | 60 | Window length |
 | `RATE_LIMIT_BLOCK_SECONDS` | 30 | Block after the limit is exceeded |
-| `TRUST_PROXY_HEADERS` | false | Use X-Forwarded-For for the client IP |
+| `TRUST_PROXY_HEADERS` | false | Use X-Forwarded-For for the client IP (Compose sets `true` for eta-api behind NGINX) |
 | `DOCS_ENABLED` | true | Serve /docs, /redoc and /openapi.json |
 
 - Invalid values stop startup with a message naming the variable
@@ -206,13 +223,36 @@ uv export --frozen --no-default-groups --no-emit-project -o requirements.lock
 
 - Run after any `uv add` / `uv remove` / `uv lock --upgrade`; commit `requirements.lock`
 
+## Web UI
+
+Plain HTML, CSS and JavaScript (ES modules; no framework, build step or CDN) served by NGINX, which also proxies the API on the same origin, so CORS stays disabled.
+
+```
+Browser ──► web (NGINX, host :${WEB_PORT:-80} → container 8080)
+              ├── /  /register.html  /css  /js  /vendor  /README.md      static site
+              └── /api/…  /docs  /openapi.json  ──►  eta-api:8000 (internal only)
+```
+
+| Page | What it does |
+|------|--------------|
+| **Home** (`/`) | Fetches `/README.md` and renders it with the vendored `marked` (raw HTML escaped; repo links shown as text) |
+| **Register Ticket** (`/register.html`) | Form mirroring `TicketIn` + 5 sample chips → **Get ETA** → predicted hours vs the fixed severity ETA, `model_version`, `request_id`; "Registered this session" list (`sessionStorage`, max 20) |
+
+- **Run:** `make start`, then open <http://localhost> (or `http://localhost:<WEB_PORT>`); Swagger UI at <http://localhost/docs>
+- **Theme:** NetCore **Light** (default) / **Dark** toggle in the header, remembered in `localStorage`; palettes in [docs/design/theme-options.html](docs/design/theme-options.html)
+- **Errors:** client checks before calling the API; 422 → inline field errors + summary; 429 → countdown banner from `Retry-After`; 503 → model not ready; 502 → API unavailable (problem+json from NGINX)
+- **Security:** strict Content-Security-Policy (no inline script/style), `nosniff`, `DENY` framing, `no-referrer`; NGINX overwrites `X-Forwarded-For` so rate limiting stays per real client (see [SECURITY.md](SECURITY.md))
+- **Vendored:** `marked` 18.1.3 ESM build in `web/site/vendor/` (MIT); only its source-map comment is removed
+
 ## Run Tests
 
 ```bash
-uv run pytest
+uv run pytest        # Python unit tests
+make test-web        # JavaScript unit tests: node --test "tests/web/*.test.mjs" (Node ≥ 22, no npm packages)
 ```
 
-- Unit tests only (no server, no TestClient, no Docker)
+- Unit tests only (no server, no TestClient, no browser, no Docker)
+- Page scripts (`layout.js`, `home.js`, `register.js`, `theme-init.js`) are thin DOM glue without unit tests (that would need jsdom); all their logic lives in the tested modules
 
 ## AI Assistant Rules
 

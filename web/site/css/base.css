@@ -1,0 +1,43 @@
+/* Reset, typography and page layout. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background-color .2s ease, color .2s ease;
+}
+h1, h2, h3, h4 { line-height: 1.25; }
+a { color: var(--primary); }
+code, pre { font-family: ui-monospace, "Cascadia Code", Consolas, "Liberation Mono", monospace; }
+img { max-width: 100%; height: auto; }
+button, input, select { font: inherit; }
+[hidden] { display: none !important; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.skip-link {
+  position: absolute; left: 12px; top: -48px; z-index: 10;
+  padding: 8px 14px; border-radius: 8px;
+  background: var(--primary); color: var(--on-primary); font-weight: 600; text-decoration: none;
+}
+.skip-link:focus { top: 12px; }
+
+.container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+main { flex: 1; padding: 24px 0 40px; }
+.page-title { font-size: 1.5rem; margin: 0 0 4px; }
+.page-lede { margin: 0 0 20px; color: var(--text-muted); max-width: 70ch; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

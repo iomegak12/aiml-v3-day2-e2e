@@ -1,0 +1,5 @@
+# Build-context allow-list for web/Dockerfile (BuildKit uses this instead of the root .dockerignore)
+*
+!web/nginx/
+!web/site/
+!README.md

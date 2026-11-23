@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-theme="netcore-light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NetCore TAC ETA · Home</title>
+  <meta name="description" content="NetCore TAC Desk: predict ticket resolution time at triage.">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NC</span> NetCore TAC ETA</a>
+      <nav class="nav" aria-label="Main">
+        <a href="/" aria-current="page">Home</a>
+        <a href="/register.html">Register Ticket</a>
+        <a href="/docs" target="_blank" rel="noopener">API docs</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>
+        <span>Theme: <span data-theme-label>Light</span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div class="container">
+      <p class="loading" id="readme-status" role="status">Loading README…</p>
+      <div class="card banner-error" id="readme-error" role="alert" hidden>
+        <p>Could not load the README. </p>
+        <button class="btn btn-ghost btn-small" id="readme-retry" type="button">Retry</button>
+      </div>
+      <article class="card readme" id="readme" hidden></article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      Predictions are estimates from a linear-regression model (test MAE ≈ 18.5 h). ·
+      <a href="/docs" target="_blank" rel="noopener">API docs</a>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/home.js"></script>
+</body>
+</html>

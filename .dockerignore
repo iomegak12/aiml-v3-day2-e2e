@@ -1,5 +1,5 @@
-# Keep the build context small: only src/, models/, pyproject.toml,
-# requirements.lock, README.md and LICENSE are needed.
+# API image (root Dockerfile). Keep the build context small: only src/, models/, pyproject.toml,
+# requirements.lock, README.md and LICENSE are needed. The web image uses web/Dockerfile.dockerignore.
 .git
 .gitignore
 .github/
@@ -15,6 +15,7 @@ notebooks/
 data/
 docs/
 tests/
+web/
 scripts/
 .env
 .env.*

@@ -16,9 +16,18 @@
 | Docker: `failed to connect to the docker API … dockerDesktopLinuxEngine` | Docker Desktop not running | Start Docker Desktop and wait until the engine is running |
 | Docker build fails installing a package that was just added | `requirements.lock` is stale | `uv export --frozen --no-default-groups --no-emit-project -o requirements.lock`, then rebuild |
 | `UnicodeEncodeError` printing `R²` / `−` on Windows | Console code page is not UTF-8 | `set PYTHONIOENCODING=utf-8` (or `$env:PYTHONIOENCODING="utf-8"` in PowerShell) |
+| `uv run pytest` → `PermissionError: [WinError 5] Access is denied: …\pytest-of-<user>\pytest-current` (Windows) | Stale or locked `pytest-current` link in pytest's temp folder | Delete `%TEMP%\pytest-of-<user>`, or run `uv run pytest --basetemp=.pytest_tmp` (add `.pytest_tmp/` to `.gitignore` if kept) |
 | `make: command not found` / `'make' is not recognized` | GNU Make not installed | Windows: `choco install make` (or `winget install GnuWin32.Make`); macOS: `xcode-select --install` |
-| `make predict`: `curl: (7) Failed to connect` | Container not running, or published on another port | `make start`; `make status`; use `make predict PORT=<port>` if `PORT` differs |
+| `make predict`: `curl: (7) Failed to connect` | Stack not running, or the web UI is published on another port | `make start`; `make status`; use `make predict WEB_PORT=<port>` if `WEB_PORT` differs |
 | `make predict`: `curl: (22) … 503` | Container up but model not loaded | `make logs`; rebuild with `make train build start` |
+| `make start`: `Bind for 0.0.0.0:80 failed: port is already allocated` / `ports are not available` | Port 80 used by IIS (`W3SVC`), Skype, WSL or another stack | Set `WEB_PORT=8080` in `.env` (or `make start WEB_PORT=8080`) and open `http://localhost:8080` |
+| Browser shows `API unavailable` / `curl` gets 502 problem+json from `/api/…` | `eta-api` stopped, restarting or unhealthy | `make status`; `make logs`; `docker compose start eta-api` (the web container recovers by itself) |
+| `http://127.0.0.1:8000` no longer answers with Docker Compose | Since 0.4.0 the API is internal; only NGINX is published | Use `http://localhost/api/v1/predictions` (or `make predict`); for direct access run the API locally with uvicorn |
+| Home shows `Could not load the README` | Image built without `README.md`, or JavaScript blocked | `make build-web start`; check the browser console |
+| Theme resets to Light on every visit | Private window or blocked site data (no `localStorage`) | Expected: the default Light theme is used when storage is unavailable |
+| Console: `Refused to execute inline script` / `Refused to apply inline style` | Inline `<script>`, `onclick=` or `style="…"` added to the site; the CSP blocks them | Move the code into `web/site/js/*.js` and the styles into `web/site/css/*.css` |
+| Changes in `web/site` don't show up | The site is baked into the web image | `make build-web start` and reload the page (no-cache headers, so a normal reload is enough) |
+| `make test-web`: `node: command not found` or `Could not find '…*.test.mjs'` | Node.js missing or older than 22 | Install Node.js ≥ 22 |
 | `Makefile:…: *** missing separator` | Recipe lines indented with spaces instead of a tab | Indent recipe lines with a single tab |
 
 > Add a row whenever a new issue and its fix are found.

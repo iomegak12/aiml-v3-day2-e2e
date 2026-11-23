@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en" data-theme="netcore-blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetCore TAC Themes</title>
+<meta name="description" content="Five colour-theme options for the NetCore TAC ETA web UI, previewed on mock Home and Register Ticket screens.">
+<style>
+/* ---------- Theme tokens (copy these into web/site/css/tokens.css) ---------- */
+[data-theme="netcore-blue"] {
+  --bg: #F4F7FB; --surface: #FFFFFF; --surface-2: #E8EEF7; --border: #C9D4E3; --input-border: #7A8AA3;
+  --text: #0F1E33; --text-muted: #4A5B73;
+  --primary: #0B4FA8; --on-primary: #FFFFFF; --primary-soft: #DCE7F7;
+  --accent: #0B7A9C; --focus: #B45309;
+  --header-bg: #0B2A55; --header-text: #FFFFFF; --header-muted: #B9C8E0;
+  --sev-s1-bg: #FDE2E1; --sev-s1-fg: #A3161A; --sev-s2-bg: #FFE7D1; --sev-s2-fg: #9A4306;
+  --sev-s3-bg: #FEF3C7; --sev-s3-fg: #795400; --sev-s4-bg: #E5E9F0; --sev-s4-fg: #3B4656;
+  --danger: #B42318; --danger-soft: #FEE4E2; --warning-soft: #FEF0C7; --warning-fg: #7A4B00;
+  --success: #067647; --code-bg: #0F1E33; --code-text: #E6EDF7;
+  color-scheme: light;
+}
+[data-theme="netcore-dark"] {
+  --bg: #0A1628; --surface: #102039; --surface-2: #16294A; --border: #27406A; --input-border: #6582B0;
+  --text: #E7EEF8; --text-muted: #A3B4CE;
+  --primary: #6EA8FF; --on-primary: #0A1628; --primary-soft: #18345F;
+  --accent: #38BDF8; --focus: #FBBF24;
+  --header-bg: #06101F; --header-text: #E7EEF8; --header-muted: #A9C2EC;
+  --sev-s1-bg: #4A1518; --sev-s1-fg: #FCA5A5; --sev-s2-bg: #4A2A0E; --sev-s2-fg: #FDBA74;
+  --sev-s3-bg: #433A0D; --sev-s3-fg: #FDE68A; --sev-s4-bg: #253049; --sev-s4-fg: #CBD5E1;
+  --danger: #FCA5A5; --danger-soft: #3B1418; --warning-soft: #3A300C; --warning-fg: #FDE68A;
+  --success: #86EFAC; --code-bg: #06101F; --code-text: #E7EEF8;
+  color-scheme: dark;
+}
+[data-theme="signal-teal"] {
+  --bg: #F1F8F6; --surface: #FFFFFF; --surface-2: #E1F0EC; --border: #BFD9D4; --input-border: #6F8F8A;
+  --text: #0F2E2A; --text-muted: #45625D;
+  --primary: #0F766E; --on-primary: #FFFFFF; --primary-soft: #D5EEE9;
+  --accent: #15803D; --focus: #7C3AED;
+  --header-bg: #0B3B37; --header-text: #FFFFFF; --header-muted: #A9D3CC;
+  --sev-s1-bg: #FDE2E1; --sev-s1-fg: #A3161A; --sev-s2-bg: #FFE7D1; --sev-s2-fg: #9A4306;
+  --sev-s3-bg: #FEF3C7; --sev-s3-fg: #795400; --sev-s4-bg: #E5E9F0; --sev-s4-fg: #3B4656;
+  --danger: #B42318; --danger-soft: #FEE4E2; --warning-soft: #FEF0C7; --warning-fg: #7A4B00;
+  --success: #067647; --code-bg: #0F2E2A; --code-text: #E3F4F0;
+  color-scheme: light;
+}
+[data-theme="graphite-amber"] {
+  --bg: #F5F5F4; --surface: #FFFFFF; --surface-2: #EBEAE8; --border: #D6D3D1; --input-border: #8A8580;
+  --text: #1C1917; --text-muted: #57534E;
+  --primary: #292524; --on-primary: #FFFFFF; --primary-soft: #ECE9E6;
+  --accent: #B45309; --focus: #D97706;
+  --header-bg: #1C1917; --header-text: #FAFAF9; --header-muted: #D6A35C;
+  --sev-s1-bg: #FDE2E1; --sev-s1-fg: #A3161A; --sev-s2-bg: #FFE7D1; --sev-s2-fg: #9A4306;
+  --sev-s3-bg: #FEF3C7; --sev-s3-fg: #795400; --sev-s4-bg: #E7E5E4; --sev-s4-fg: #44403C;
+  --danger: #B42318; --danger-soft: #FEE4E2; --warning-soft: #FEF0C7; --warning-fg: #7A4B00;
+  --success: #067647; --code-bg: #1C1917; --code-text: #F5F5F4;
+  color-scheme: light;
+}
+[data-theme="midnight-noc"] {
+  --bg: #0B1220; --surface: #121B2F; --surface-2: #18233B; --border: #2A3A5A; --input-border: #5B6E92;
+  --text: #E6EDF7; --text-muted: #9AA8BF;
+  --primary: #22D3EE; --on-primary: #06262E; --primary-soft: #123048;
+  --accent: #A3E635; --focus: #A3E635;
+  --header-bg: #070C16; --header-text: #E6EDF7; --header-muted: #7FD9EA;
+  --sev-s1-bg: #4A1518; --sev-s1-fg: #FCA5A5; --sev-s2-bg: #4A2A0E; --sev-s2-fg: #FDBA74;
+  --sev-s3-bg: #433A0D; --sev-s3-fg: #FDE68A; --sev-s4-bg: #253049; --sev-s4-fg: #CBD5E1;
+  --danger: #FCA5A5; --danger-soft: #3B1418; --warning-soft: #3A300C; --warning-fg: #FDE68A;
+  --success: #86EFAC; --code-bg: #070C16; --code-text: #E6EDF7;
+  color-scheme: dark;
+}
+[data-theme="plum-coral"] {
+  --bg: #FBF6F8; --surface: #FFFFFF; --surface-2: #F3E8EE; --border: #E3CFDA; --input-border: #9A7A8D;
+  --text: #2A1424; --text-muted: #6B4E61;
+  --primary: #6D2861; --on-primary: #FFFFFF; --primary-soft: #F1DDEA;
+  --accent: #B93C18; --focus: #E4572E;
+  --header-bg: #4A1942; --header-text: #FFFFFF; --header-muted: #F4B7A3;
+  --sev-s1-bg: #FDE2E1; --sev-s1-fg: #A3161A; --sev-s2-bg: #FFE7D1; --sev-s2-fg: #9A4306;
+  --sev-s3-bg: #FEF3C7; --sev-s3-fg: #795400; --sev-s4-bg: #ECE6EA; --sev-s4-fg: #4B3B46;
+  --danger: #B42318; --danger-soft: #FEE4E2; --warning-soft: #FEF0C7; --warning-fg: #7A4B00;
+  --success: #067647; --code-bg: #2A1424; --code-text: #FBEFF5;
+  color-scheme: light;
+}
+
+/* ---------- Preview page layout ---------- */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background .2s, color .2s;
+}
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.page { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 32px 0 12px; }
+.lede { color: var(--text-muted); margin: 0 0 20px; max-width: 70ch; }
+.note { font-size: .85rem; color: var(--text-muted); }
+
+/* Theme picker cards: each card carries its own data-theme so it shows its own colours */
+.picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.theme-card {
+  text-align: left; cursor: pointer; padding: 14px; border-radius: 12px;
+  background: var(--surface); color: var(--text); border: 2px solid var(--border);
+  font: inherit; display: flex; flex-direction: column; gap: 8px;
+}
+.theme-card[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.theme-card strong { font-size: 1rem; }
+.theme-card span.tag { font-size: .82rem; color: var(--text-muted); }
+.dots { display: flex; gap: 6px; }
+.dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); }
+.picked { font-size: .75rem; font-weight: 600; color: var(--primary); visibility: hidden; }
+.theme-card[aria-pressed="true"] .picked { visibility: visible; }
+
+/* Token table */
+.tokens { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; }
+.tokens th, .tokens td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: .88rem; }
+.tokens th { background: var(--surface-2); }
+.swatch { display: inline-block; width: 18px; height: 18px; border-radius: 4px; vertical-align: middle; margin-right: 8px; border: 1px solid rgba(0,0,0,.15); }
+.pass { color: var(--success); font-weight: 600; }
+.fail { color: var(--danger); font-weight: 600; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+
+/* ---------- Mock application ---------- */
+.app { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--bg); }
+.app-header {
+  background: var(--header-bg); color: var(--header-text);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 16px;
+}
+.brand { font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.brand-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--primary); color: var(--on-primary);
+  display: grid; place-items: center; font-size: .8rem; }
+.nav { display: flex; gap: 4px; flex: 1; }
+.nav button {
+  background: transparent; border: 0; color: var(--header-muted); font: inherit; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+}
+.nav button[aria-current="page"] { color: var(--header-text); background: rgba(255,255,255,.12); font-weight: 600; }
+.theme-select { display: flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--header-muted); }
+.theme-select select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--surface); color: var(--text); }
+.app-body { padding: 20px 16px; }
+.view[hidden] { display: none; }
+
+/* Home (rendered README mock) */
+.readme { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; max-width: 80ch; }
+.readme h3 { margin-top: 0; font-size: 1.3rem; }
+.readme h4 { margin: 18px 0 6px; }
+.readme a { color: var(--primary); }
+.readme table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+.readme th, .readme td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; }
+.readme th { background: var(--surface-2); }
+.readme pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .85rem; }
+.readme code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+
+/* Register */
+.grid-2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+@media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.card h3 { margin: 0 0 12px; font-size: 1.05rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip {
+  font: inherit; font-size: .84rem; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--input-border); background: var(--surface); color: var(--text);
+}
+.chip:hover { background: var(--primary-soft); }
+.chip[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 520px) { .form { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: .84rem; font-weight: 600; }
+.field input, .field select {
+  font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--input-border);
+  background: var(--surface); color: var(--text); min-width: 0;
+}
+.field .hint { font-size: .76rem; color: var(--text-muted); }
+.field.invalid input { border-color: var(--danger); border-width: 2px; }
+.field .error { font-size: .78rem; color: var(--danger); }
+.actions { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.btn { font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--input-border); }
+
+.eta-hours { font-size: 2.4rem; font-weight: 700; line-height: 1.1; color: var(--primary); }
+.eta-sub { color: var(--text-muted); margin-bottom: 12px; }
+.compare { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+.pill { font-size: .8rem; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); color: var(--text); }
+.pill.accent { background: var(--primary-soft); color: var(--text); font-weight: 600; }
+.meta { font-size: .78rem; color: var(--text-muted); word-break: break-all; }
+.banner { border-radius: 10px; padding: 10px 12px; font-size: .88rem; margin-top: 12px; }
+.banner.warn { background: var(--warning-soft); color: var(--warning-fg); }
+.banner.err { background: var(--danger-soft); color: var(--danger); }
+
+.badge { display: inline-block; font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.sev-S1 { background: var(--sev-s1-bg); color: var(--sev-s1-fg); }
+.sev-S2 { background: var(--sev-s2-bg); color: var(--sev-s2-fg); }
+.sev-S3 { background: var(--sev-s3-bg); color: var(--sev-s3-fg); }
+.sev-S4 { background: var(--sev-s4-bg); color: var(--sev-s4-fg); }
+.history { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.history th, .history td { padding: 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.history th { color: var(--text-muted); font-weight: 600; }
+.footer { margin-top: 16px; font-size: .78rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<main class="page">
+  <h1>NetCore TAC ETA: theme options</h1>
+  <p class="lede">Pick a theme to restyle the whole page, including the mock app below. All values shown are mock data, and the page makes no network calls.</p>
+  <p class="lede"><strong>Chosen (v0.4.0):</strong> <strong>NetCore Blue</strong> as the Light theme (default) and <strong>NetCore Dark</strong>, with a Light/Dark toggle in the app header. The other four themes are kept here for reference.</p>
+
+  <section aria-labelledby="pick-h">
+    <h2 id="pick-h">1. Choose a theme</h2>
+    <div class="picker" id="picker" role="group" aria-label="Theme options"></div>
+  </section>
+
+  <section aria-labelledby="app-h">
+    <h2 id="app-h">2. Mock application</h2>
+    <div class="app">
+      <header class="app-header">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">NC</span> NetCore TAC ETA</div>
+        <nav class="nav" aria-label="Main">
+          <button type="button" data-view="register" aria-current="page">Register Ticket</button>
+          <button type="button" data-view="home">Home</button>
+        </nav>
+        <label class="theme-select">Theme
+          <select id="header-theme" aria-label="Theme"></select>
+        </label>
+      </header>
+
+      <div class="app-body">
+        <!-- Register Ticket -->
+        <section class="view" id="view-register" aria-label="Register Ticket">
+          <div class="grid-2">
+            <div class="card">
+              <h3>Register a ticket</h3>
+              <div class="chips" id="chips" role="group" aria-label="Sample tickets"></div>
+              <form class="form" id="form" novalidate>
+                <div class="field"><label for="f-created">Created at</label><input id="f-created" type="datetime-local" value="2026-11-21T10:30"></div>
+                <div class="field"><label for="f-product">Product family</label><input id="f-product" list="products" value="Firewalls" maxlength="50">
+                  <datalist id="products"><option>Firewalls</option><option>Routers</option><option>SD-WAN</option><option>Switches</option><option>Wireless</option></datalist>
+                  <span class="hint">Unseen products are allowed</span></div>
+                <div class="field"><label for="f-severity">Severity</label><select id="f-severity"><option>S1</option><option selected>S2</option><option>S3</option><option>S4</option></select></div>
+                <div class="field"><label for="f-tier">Customer tier</label><select id="f-tier"><option>Platinum</option><option selected>Gold</option><option>Silver</option></select></div>
+                <div class="field"><label for="f-region">Region</label><select id="f-region"><option>AMER</option><option selected>EMEA</option><option>APJC</option></select></div>
+                <div class="field"><label for="f-channel">Channel</label><select id="f-channel"><option>Email</option><option selected>Phone</option><option>Portal</option></select></div>
+                <div class="field invalid" id="devices-field"><label for="f-devices">Devices affected</label><input id="f-devices" type="number" min="1" max="1000" value="4" aria-describedby="devices-err">
+                  <span class="error" id="devices-err">Example 422 error: must be 1 to 1000</span></div>
+                <div class="field"><label for="f-sw">Software age (months)</label><input id="f-sw" type="number" min="0" max="240" value="40"></div>
+                <div class="field"><label for="f-prior">Prior tickets (90 days)</label><input id="f-prior" type="number" min="0" max="100" value="1"></div>
+                <div class="field"><label for="f-exp">Engineer experience (years)</label><input id="f-exp" type="number" min="0" max="50" step="0.1" value="6.5"><span class="hint">Leave blank if unknown</span></div>
+                <div class="field"><label for="f-frt">First response (minutes)</label><input id="f-frt" type="number" min="0" max="10080" step="0.1" value="20"><span class="hint">Leave blank if unknown</span></div>
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Get ETA</button>
+                  <button class="btn btn-ghost" type="reset">Clear</button>
+                </div>
+              </form>
+            </div>
+
+            <div>
+              <div class="card" aria-live="polite">
+                <h3>Predicted ETA</h3>
+                <div class="eta-hours" id="eta-hours">32.5 h</div>
+                <div class="eta-sub" id="eta-human">≈ 1 d 8.5 h to resolve</div>
+                <div class="compare">
+                  <span class="pill">Fixed <span id="eta-sev">S2</span> ETA: <span id="eta-fixed">24 h</span></span>
+                  <span class="pill accent" id="eta-delta">+8.5 h vs fixed</span>
+                </div>
+                <div class="meta">model 0.3.0 · request 3f2b8c1e-6f1d-4c55-9a43-2f0c1f8f6b7a</div>
+                <div class="banner warn">Example 429: too many requests. Try again in <strong>27 s</strong>.</div>
+                <div class="banner err">Example 503: the prediction model isn't ready. Try again shortly.</div>
+              </div>
+
+              <div class="card" style="margin-top:16px">
+                <h3>Registered this session</h3>
+                <div class="table-wrap" style="border:0">
+                  <table class="history">
+                    <thead><tr><th>Ticket</th><th>Sev</th><th>Product</th><th>ETA</th></tr></thead>
+                    <tbody>
+                      <tr><td>WEB-0003</td><td><span class="badge sev-S1">S1</span></td><td>Routers</td><td>16.3 h</td></tr>
+                      <tr><td>WEB-0002</td><td><span class="badge sev-S3">S3</span></td><td>Switches</td><td>59.5 h</td></tr>
+                      <tr><td>WEB-0001</td><td><span class="badge sev-S4">S4</span></td><td>Wireless</td><td>35.7 h</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Home -->
+        <section class="view" id="view-home" aria-label="Home" hidden>
+          <article class="readme">
+            <h3>Day 2: TAC Desk Resolution-Time Prediction</h3>
+            <p>ML training demonstration for <strong>NetCore TAC Desk</strong> (fictional networking vendor): predict ticket resolution hours at triage time.</p>
+            <h4>Endpoints</h4>
+            <table>
+              <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td>POST</td><td><code>/api/v1/predictions</code></td><td>Predict resolution hours for one ticket</td></tr>
+                <tr><td>GET</td><td><code>/docs</code></td><td>Swagger UI</td></tr>
+              </tbody>
+            </table>
+            <h4>Run tests</h4>
+            <pre><code>uv run pytest</code></pre>
+            <p>See <a href="#">SECURITY.md</a> for the deployment notes.</p>
+          </article>
+        </section>
+        <p class="footer">Mock values only (they come from the trained model, but this page makes no API calls).</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="tok-h">
+    <h2 id="tok-h">3. Tokens and contrast for the selected theme</h2>
+    <div class="table-wrap">
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Value</th><th>Checked against</th><th>Contrast</th></tr></thead>
+        <tbody id="token-rows"></tbody>
+      </table>
+    </div>
+    <p class="note">WCAG 2.2 AA: text ≥ 4.5:1; input borders and focus ring ≥ 3:1. Ratios are computed live from the CSS above.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var THEMES = [
+    { id: "netcore-blue", name: "NetCore Blue", tag: "Corporate navy and cyan. Trustworthy and familiar for enterprise support. Chosen as Light." },
+    { id: "netcore-dark", name: "NetCore Dark", tag: "Deep navy with brighter blue and cyan. NetCore's dark mode. Chosen as Dark." },
+    { id: "signal-teal", name: "Signal Teal", tag: "Calm NOC teal and green. Easy on the eyes during long shifts." },
+    { id: "graphite-amber", name: "Graphite Amber", tag: "Neutral graphite with amber highlights. Industrial and low-distraction." },
+    { id: "midnight-noc", name: "Midnight NOC", tag: "Dark slate with electric cyan and lime, for dim operations rooms." },
+    { id: "plum-coral", name: "Plum Coral", tag: "Warm plum and coral. Friendly and distinctive for customer-facing use." }
+  ];
+  var DOT_TOKENS = ["--header-bg", "--primary", "--accent", "--surface-2", "--bg"];
+  var CHECKS = [
+    ["--text", "--surface"], ["--text", "--bg"], ["--text-muted", "--surface"],
+    ["--on-primary", "--primary"], ["--accent", "--surface"], ["--header-text", "--header-bg"], ["--header-muted", "--header-bg"],
+    ["--danger", "--danger-soft"], ["--warning-fg", "--warning-soft"],
+    ["--sev-s1-fg", "--sev-s1-bg"], ["--sev-s2-fg", "--sev-s2-bg"], ["--sev-s3-fg", "--sev-s3-bg"], ["--sev-s4-fg", "--sev-s4-bg"],
+    ["--input-border", "--surface", 3], ["--focus", "--surface", 3]
+  ];
+  // Illustrative ETAs from the trained model (v0.3.0) for each sample chip
+  var CHIPS = [
+    { label: "S1 · Core router outage", eta: 16.3, v: { created: "2026-11-24T02:10", product: "Routers", severity: "S1", tier: "Platinum", region: "AMER", channel: "Phone", devices: 25, sw: 18, prior: 3, exp: "9.5", frt: "5" } },
+    { label: "S2 · Weekend firewall", eta: 32.5, v: { created: "2026-11-21T10:30", product: "Firewalls", severity: "S2", tier: "Gold", region: "EMEA", channel: "Phone", devices: 4, sw: 40, prior: 1, exp: "6.5", frt: "20" } },
+    { label: "S3 · Old switch software", eta: 59.5, v: { created: "2026-11-25T14:00", product: "Switches", severity: "S3", tier: "Silver", region: "APJC", channel: "Portal", devices: 12, sw: 60, prior: 5, exp: "3", frt: "95" } },
+    { label: "S4 · Wireless question", eta: 35.7, v: { created: "2026-11-26T09:15", product: "Wireless", severity: "S4", tier: "Silver", region: "EMEA", channel: "Email", devices: 1, sw: 6, prior: 0, exp: "12", frt: "240" } },
+    { label: "Unknown product, missing data", eta: 37.8, v: { created: "2026-11-27T16:45", product: "Optical Transport", severity: "S2", tier: "Gold", region: "AMER", channel: "Portal", devices: 8, sw: 30, prior: 2, exp: "", frt: "" } }
+  ];
+  var FIXED = { S1: 4, S2: 24, S3: 48, S4: 72 };
+  var root = document.documentElement;
+
+  function el(tag, attrs, text) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  // ---- contrast (WCAG relative luminance) ----
+  function luminance(hex) {
+    var c = [1, 3, 5].map(function (i) {
+      var v = parseInt(hex.slice(i, i + 2), 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function ratio(a, b) {
+    var x = luminance(a), y = luminance(b);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  }
+  function tokenValue(name, scope) { return getComputedStyle(scope || root).getPropertyValue(name).trim(); }
+
+  // ---- theme picker ----
+  var picker = document.getElementById("picker");
+  var select = document.getElementById("header-theme");
+  THEMES.forEach(function (t) {
+    var card = el("button", { type: "button", "class": "theme-card", "data-theme": t.id, "data-pick": t.id, "aria-pressed": "false" });
+    card.appendChild(el("strong", {}, t.name));
+    var dots = el("span", { "class": "dots", "aria-hidden": "true" });
+    DOT_TOKENS.forEach(function (tok) { var d = el("span", { "class": "dot" }); d.style.background = "var(" + tok + ")"; dots.appendChild(d); });
+    card.appendChild(dots);
+    card.appendChild(el("span", { "class": "tag" }, t.tag));
+    card.appendChild(el("span", { "class": "picked" }, "✓ Selected"));
+    card.addEventListener("click", function () { applyTheme(t.id); });
+    picker.appendChild(card);
+    select.appendChild(el("option", { value: t.id }, t.name));
+  });
+  select.addEventListener("change", function () { applyTheme(select.value); });
+
+  function applyTheme(id) {
+    root.setAttribute("data-theme", id);
+    select.value = id;
+    Array.prototype.forEach.call(picker.children, function (c) {
+      c.setAttribute("aria-pressed", String(c.getAttribute("data-pick") === id));
+    });
+    try { history.replaceState(null, "", "#theme=" + id); } catch (e) { /* file:// in some browsers */ }
+    renderTokens();
+  }
+
+  function renderTokens() {
+    var body = document.getElementById("token-rows");
+    body.textContent = "";
+    CHECKS.forEach(function (chk) {
+      var fg = tokenValue(chk[0]), bg = tokenValue(chk[1]), min = chk[2] || 4.5;
+      var r = ratio(fg, bg);
+      var tr = el("tr");
+      var tdName = el("td"); tdName.appendChild(el("code", {}, chk[0])); tr.appendChild(tdName);
+      var tdVal = el("td"); var sw = el("span", { "class": "swatch" }); sw.style.background = fg; tdVal.appendChild(sw); tdVal.appendChild(document.createTextNode(fg)); tr.appendChild(tdVal);
+      var tdBg = el("td"); var sw2 = el("span", { "class": "swatch" }); sw2.style.background = bg; tdBg.appendChild(sw2); tdBg.appendChild(el("code", {}, chk[1])); tr.appendChild(tdBg);
+      tr.appendChild(el("td", { "class": r >= min ? "pass" : "fail" }, r.toFixed(2) + ":1 " + (r >= min ? "✓" : "✗") + " (≥ " + min + ")"));
+      body.appendChild(tr);
+    });
+  }
+
+  // ---- mock navigation ----
+  Array.prototype.forEach.call(document.querySelectorAll(".nav button"), function (btn) {
+    btn.addEventListener("click", function () {
+      var view = btn.getAttribute("data-view");
+      document.querySelectorAll(".nav button").forEach(function (b) { b.removeAttribute("aria-current"); });
+      btn.setAttribute("aria-current", "page");
+      document.getElementById("view-register").hidden = view !== "register";
+      document.getElementById("view-home").hidden = view !== "home";
+    });
+  });
+
+  // ---- mock chips + result ----
+  var chipBox = document.getElementById("chips");
+  var ids = { created: "f-created", product: "f-product", severity: "f-severity", tier: "f-tier", region: "f-region",
+              channel: "f-channel", devices: "f-devices", sw: "f-sw", prior: "f-prior", exp: "f-exp", frt: "f-frt" };
+  function human(h) { var d = Math.floor(h / 24), r = Math.round((h - d * 24) * 10) / 10; return d ? d + " d " + r + " h" : r + " h"; }
+  function showResult(sev, eta) {
+    var fixed = FIXED[sev], delta = Math.round((eta - fixed) * 10) / 10;
+    document.getElementById("eta-hours").textContent = eta.toFixed(1) + " h";
+    document.getElementById("eta-human").textContent = "≈ " + human(eta) + " to resolve";
+    document.getElementById("eta-sev").textContent = sev;
+    document.getElementById("eta-fixed").textContent = fixed + " h";
+    document.getElementById("eta-delta").textContent = (delta >= 0 ? "+" : "") + delta.toFixed(1) + " h vs fixed";
+  }
+  CHIPS.forEach(function (chip, i) {
+    var b = el("button", { type: "button", "class": "chip", "aria-pressed": i === 1 ? "true" : "false" }, chip.label);
+    b.addEventListener("click", function () {
+      Object.keys(ids).forEach(function (k) { document.getElementById(ids[k]).value = chip.v[k]; });
+      chipBox.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
+      b.setAttribute("aria-pressed", "true");
+      showResult(chip.v.severity, chip.eta);
+    });
+    chipBox.appendChild(b);
+  });
+  document.getElementById("form").addEventListener("submit", function (e) { e.preventDefault(); });
+
+  // ---- initial theme from #theme=… ----
+  var fromHash = (location.hash.match(/theme=([a-z-]+)/) || [])[1];
+  applyTheme(THEMES.some(function (t) { return t.id === fromHash; }) ? fromHash : "netcore-blue");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+/* NetCore theme tokens. Light = "NetCore Blue" from docs/design/theme-options.html;
+   Dark = "NetCore Dark" (same file). All other CSS uses only these variables. */
+
+[data-theme="netcore-light"] {
+  --bg: #F4F7FB; --surface: #FFFFFF; --surface-2: #E8EEF7; --border: #C9D4E3; --input-border: #7A8AA3;
+  --text: #0F1E33; --text-muted: #4A5B73;
+  --primary: #0B4FA8; --on-primary: #FFFFFF; --primary-soft: #DCE7F7;
+  --accent: #0B7A9C; --focus: #B45309;
+  --header-bg: #0B2A55; --header-text: #FFFFFF; --header-muted: #B9C8E0;
+  --sev-s1-bg: #FDE2E1; --sev-s1-fg: #A3161A; --sev-s2-bg: #FFE7D1; --sev-s2-fg: #9A4306;
+  --sev-s3-bg: #FEF3C7; --sev-s3-fg: #795400; --sev-s4-bg: #E5E9F0; --sev-s4-fg: #3B4656;
+  --danger: #B42318; --danger-soft: #FEE4E2; --warning-soft: #FEF0C7; --warning-fg: #7A4B00;
+  --success: #067647; --code-bg: #0F1E33; --code-text: #E6EDF7;
+  --shadow: 0 1px 2px rgba(15, 30, 51, .06), 0 4px 16px rgba(15, 30, 51, .06);
+  color-scheme: light;
+}
+
+[data-theme="netcore-dark"] {
+  --bg: #0A1628; --surface: #102039; --surface-2: #16294A; --border: #27406A; --input-border: #6582B0;
+  --text: #E7EEF8; --text-muted: #A3B4CE;
+  --primary: #6EA8FF; --on-primary: #0A1628; --primary-soft: #18345F;
+  --accent: #38BDF8; --focus: #FBBF24;
+  --header-bg: #06101F; --header-text: #E7EEF8; --header-muted: #A9C2EC;
+  --sev-s1-bg: #4A1518; --sev-s1-fg: #FCA5A5; --sev-s2-bg: #4A2A0E; --sev-s2-fg: #FDBA74;
+  --sev-s3-bg: #433A0D; --sev-s3-fg: #FDE68A; --sev-s4-bg: #253049; --sev-s4-fg: #CBD5E1;
+  --danger: #FCA5A5; --danger-soft: #3B1418; --warning-soft: #3A300C; --warning-fg: #FDE68A;
+  --success: #86EFAC; --code-bg: #06101F; --code-text: #E7EEF8;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}

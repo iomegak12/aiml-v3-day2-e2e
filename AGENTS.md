@@ -30,6 +30,7 @@
 | `docs/`    | Project and ML documentation                    |
 | `notebooks/` | Jupyter notebooks                             |
 | `models/`  | Trained model artefacts                         |
+| `web/`     | Web UI: NGINX config and static site            |
 
 - Keep a `.gitkeep` in every folder that would otherwise be empty.
 

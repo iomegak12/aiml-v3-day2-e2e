@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en" data-theme="netcore-light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NetCore TAC ETA · Register Ticket</title>
+  <meta name="description" content="Register a TAC ticket and get its predicted resolution time.">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NC</span> NetCore TAC ETA</a>
+      <nav class="nav" aria-label="Main">
+        <a href="/">Home</a>
+        <a href="/register.html" aria-current="page">Register Ticket</a>
+        <a href="/docs" target="_blank" rel="noopener">API docs</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>
+        <span>Theme: <span data-theme-label>Light</span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div class="container">
+      <h1 class="page-title">Register a ticket</h1>
+      <p class="page-lede">Enter what is known at triage, or start from a sample ticket, and get the predicted time to resolve, compared with the fixed severity ETA.</p>
+
+      <div class="register-grid">
+        <section class="card" aria-labelledby="form-heading">
+          <h2 id="form-heading">Ticket details</h2>
+          <p class="chips-label" id="chips-label">Sample tickets</p>
+          <ul class="chips" id="chips" aria-labelledby="chips-label"></ul>
+
+          <form class="form-grid" id="ticket-form" novalidate>
+            <div class="error-summary" id="error-summary" role="alert" tabindex="-1" hidden></div>
+
+            <div class="field">
+              <label for="field-created_at">Created at</label>
+              <input id="field-created_at" name="created_at" type="datetime-local" required aria-describedby="err-created_at">
+              <p class="field-error" id="err-created_at" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-product_family">Product family</label>
+              <input id="field-product_family" name="product_family" list="products" maxlength="50" required
+                     value="Routers" aria-describedby="hint-product err-product_family">
+              <datalist id="products">
+                <option value="Firewalls"></option><option value="Routers"></option><option value="SD-WAN"></option>
+                <option value="Switches"></option><option value="Wireless"></option>
+              </datalist>
+              <span class="hint" id="hint-product">Unseen products are allowed</span>
+              <p class="field-error" id="err-product_family" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-severity">Severity</label>
+              <select id="field-severity" name="severity" aria-describedby="err-severity">
+                <option value="S1">S1 (critical)</option>
+                <option value="S2" selected>S2 (high)</option>
+                <option value="S3">S3 (medium)</option>
+                <option value="S4">S4 (low)</option>
+              </select>
+              <p class="field-error" id="err-severity" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-customer_tier">Customer tier</label>
+              <select id="field-customer_tier" name="customer_tier" aria-describedby="err-customer_tier">
+                <option>Platinum</option><option selected>Gold</option><option>Silver</option>
+              </select>
+              <p class="field-error" id="err-customer_tier" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-region">Region</label>
+              <select id="field-region" name="region" aria-describedby="err-region">
+                <option>AMER</option><option selected>EMEA</option><option>APJC</option>
+              </select>
+              <p class="field-error" id="err-region" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-channel">Channel</label>
+              <select id="field-channel" name="channel" aria-describedby="err-channel">
+                <option>Email</option><option selected>Phone</option><option>Portal</option>
+              </select>
+              <p class="field-error" id="err-channel" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-devices_affected">Devices affected</label>
+              <input id="field-devices_affected" name="devices_affected" type="number" inputmode="numeric"
+                     min="1" max="1000" step="1" value="1" required aria-describedby="err-devices_affected">
+              <p class="field-error" id="err-devices_affected" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-software_version_months">Software age (months)</label>
+              <input id="field-software_version_months" name="software_version_months" type="number" inputmode="numeric"
+                     min="0" max="240" step="1" value="12" required aria-describedby="err-software_version_months">
+              <p class="field-error" id="err-software_version_months" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-prior_tickets_90d">Prior tickets (90 days)</label>
+              <input id="field-prior_tickets_90d" name="prior_tickets_90d" type="number" inputmode="numeric"
+                     min="0" max="100" step="1" value="0" required aria-describedby="err-prior_tickets_90d">
+              <p class="field-error" id="err-prior_tickets_90d" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-engineer_experience_years">Engineer experience (years)</label>
+              <input id="field-engineer_experience_years" name="engineer_experience_years" type="number" inputmode="decimal"
+                     min="0" max="50" step="0.1" aria-describedby="hint-exp err-engineer_experience_years">
+              <span class="hint" id="hint-exp">Leave blank if unknown</span>
+              <p class="field-error" id="err-engineer_experience_years" hidden></p>
+            </div>
+            <div class="field">
+              <label for="field-first_response_minutes">First response (minutes)</label>
+              <input id="field-first_response_minutes" name="first_response_minutes" type="number" inputmode="decimal"
+                     min="0" max="10080" step="0.1" aria-describedby="hint-frt err-first_response_minutes">
+              <span class="hint" id="hint-frt">Leave blank if unknown</span>
+              <p class="field-error" id="err-first_response_minutes" hidden></p>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" id="submit-btn" type="submit">Get ETA</button>
+              <button class="btn btn-ghost" type="reset">Clear</button>
+            </div>
+          </form>
+        </section>
+
+        <div class="stack">
+          <section class="card" aria-labelledby="result-heading">
+            <h2 id="result-heading" tabindex="-1">Predicted ETA</h2>
+            <div class="banner" id="status-banner" role="status" aria-live="polite" hidden></div>
+            <div aria-live="polite">
+              <p class="result-empty" id="result-empty">Fill in the form or pick a sample ticket, then press <strong>Get ETA</strong>.</p>
+              <div id="result-body" hidden>
+                <p class="eta-hours" id="eta-hours"></p>
+                <p class="eta-human" id="eta-human"></p>
+                <div class="pills">
+                  <span class="pill" id="eta-fixed"></span>
+                  <span class="pill pill-strong" id="eta-delta"></span>
+                </div>
+                <p class="meta" id="eta-meta"></p>
+              </div>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="history-heading">
+            <div class="card-head">
+              <h2 id="history-heading">Registered this session</h2>
+              <button class="btn btn-ghost btn-small" id="history-clear" type="button">Clear list</button>
+            </div>
+            <p class="history-empty" id="history-empty">No tickets registered yet.</p>
+            <div class="table-scroll">
+              <table class="data-table" id="history-table" hidden>
+                <thead>
+                  <tr><th scope="col">Ticket</th><th scope="col">Created</th><th scope="col">Sev</th><th scope="col">Product</th>
+                      <th scope="col">Tier</th><th scope="col">ETA</th><th scope="col">Fixed</th><th scope="col">vs fixed</th></tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      Predictions are estimates from a linear-regression model (test MAE ≈ 18.5 h). ·
+      <a href="/docs" target="_blank" rel="noopener">API docs</a>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/register.js"></script>
+</body>
+</html>

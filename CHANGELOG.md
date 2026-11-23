@@ -5,17 +5,31 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-23
+
 ### Added
 
-- `Makefile`: `help` (default), `build` (trains the model first if missing), `start` (`docker compose up -d --wait`), `stop`, `predict` (curl with the sample payload), `status`, `logs`, `train`, `test`, `lock`; shell-neutral recipes (cmd, PowerShell, Git Bash)
-- `data/sample_prediction_request.json`: sample S2 ticket for `make predict`
-- `tests/test_sample_request.py`: sample payload is a valid `TicketIn` and matches the OpenAPI example
+- **Web UI** (`web/`): plain HTML/CSS/JS (ES modules; no framework, build step or CDN) served by NGINX
+  - **Home** (`/`): `README.md` rendered at runtime with vendored `marked` 18.1.3 (raw HTML escaped, repo links shown as text, heading anchors)
+  - **Register Ticket** (`/register.html`): form mirroring `TicketIn`, 5 sample chips, client-side checks, ETA card (hours, days + hours, comparison with the fixed severity ETA, `model_version`, `request_id`), inline 422 errors + summary, 429 countdown from `Retry-After`, 503 / 502 / timeout / network messages, "Registered this session" list (`sessionStorage`, max 20)
+  - **NetCore Light / Dark** themes with a header toggle (Light by default, saved in `localStorage`, applied before first paint)
+  - Pure, unit-tested modules: `config`, `payload`, `chips`, `eta`, `api`, `history`, `theme`, `markdown`; thin page scripts `layout`, `home`, `register`, `theme-init`
+- **NGINX** (`web/nginx/`): `nginxinc/nginx-unprivileged:1.30.6-alpine` (UID 101, port 8080); same-origin proxy for `/api/`, `/docs`, `/openapi.json` with a dynamic upstream (Docker DNS); `X-Forwarded-For` overwritten with the client IP; 502 problem+json when the API is down; strict CSP (relaxed only for `/docs`) and security headers; `/healthz`; gzip; 16 KB body limit
+- `web/Dockerfile` (+ `web/Dockerfile.dockerignore` allow-list) with `nginx -t` at build time and a `HEALTHCHECK`; image 90 MB on disk / 26 MB compressed
+- `docker-compose.yml` service `web` (`${WEB_PORT:-80}:8080`, waits for a healthy `eta-api`, read-only, tmpfs `/tmp`, `no-new-privileges`, 128 MB)
+- JavaScript unit tests `tests/web/*.test.mjs` (70 tests, `node --test`, no npm packages)
+- `Makefile`: `help` (default), `build`, `build-api`, `build-web`, `start` (`docker compose up -d --wait`), `stop`, `status`, `logs`, `predict` (through NGINX), `train`, `test`, `test-web`, `lock`; shell-neutral recipes (cmd, PowerShell, Git Bash); `build`/`start` train the model first if it is missing
+- `data/sample_prediction_request.json` (sample S2 ticket for `make predict`) and `tests/test_sample_request.py`
+- `docs/prompts/002-web-ui-prompt.md` (web UI build prompt), `docs/design/theme-options.html` (interactive theme preview with live WCAG contrast checks, now including NetCore Dark), `docs/03-web-ui.md` (prompt and Q&A log)
+- `.env.example`: `WEB_PORT=80`
 
 ### Changed
 
-- Healthcheck `start_interval` / `--start-interval=2s` (Compose and Dockerfile): container reports healthy in ~3 s instead of ~30 s
-- `.dockerignore`: `Makefile`
-- README (Makefile section, structure), CONTRIBUTING, TROUBLESHOOTING (make / curl issues), `docs/02-model-rest-api.md` (Makefile Q&A)
+- `pyproject.toml` version 0.4.0; image tags `netcore-tac-eta-api:0.4.0`, `netcore-tac-eta-web:0.4.0`
+- `eta-api` is no longer published to the host (`expose: 8000`) and runs with `TRUST_PROXY_HEADERS=true` behind NGINX
+- Healthcheck `start_interval` / `--start-interval=2s` (Compose and Dockerfiles): containers report healthy in seconds instead of ~30 s
+- `.dockerignore` (API image): excludes `web/` and `Makefile`
+- README (Web UI section, Compose/Makefile/configuration/examples, structure, image sizes), SECURITY (web UI and reverse proxy, CORS note, supported version 0.4.x), TROUBLESHOOTING (port 80, 502, internal API port, README/theme/CSP/node issues, Windows `pytest-current` error), CONTRIBUTING (web UI workflow, page-script test exception, upgrading `marked`), AGENTS + Copilot summary (`web/` folder), `docs/02-model-rest-api.md` (Makefile Q&A)
 
 ## [0.3.0] - 2026-11-23
 
