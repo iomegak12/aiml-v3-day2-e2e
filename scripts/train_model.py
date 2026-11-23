@@ -32,12 +32,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def format_summary(result: TrainingResult, raw_rows: int) -> str:
     """One short, human-readable training summary."""
-    rows, metrics = result.metadata["rows"], result.metadata["metrics"]
-    base, model = metrics["baseline"], metrics["model"]
+    meta = result.metadata
+    rows, metrics = meta["rows"], meta["metrics"]
+    base, linear, model = metrics["baseline"], metrics["linear_regression"], metrics["model"]
+    floors = ", ".join(f"{sev} {hours:g} h" for sev, hours in sorted(meta["min_hours_by_severity"].items()))
     return (f"Tickets: {raw_rows:,} raw -> {rows['total']:,} clean | "
             f"train {rows['train']:,} | test {rows['test']:,}\n"
-            f"Baseline MAE {base['mae']:.1f} h | Model MAE {model['mae']:.1f} h, "
-            f"RMSE {model['rmse']:.1f} h, R² {model['r2']:.2f}")
+            f"Baseline MAE {base['mae']:.1f} h | Linear regression MAE {linear['mae']:.1f} h "
+            f"(reference) | Model MAE {model['mae']:.1f} h, RMSE {model['rmse']:.1f} h, "
+            f"R² {model['r2']:.2f}\n"
+            f"Model: {meta['model_type']} | Minimum ETA: {floors}")
 
 
 def main(argv: list[str] | None = None) -> TrainingResult:

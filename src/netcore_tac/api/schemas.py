@@ -76,18 +76,33 @@ class TicketIn(BaseModel):
         description="Null if unknown; filled with the training median")
 
 
+class AdjustedInput(BaseModel):
+    """A numeric input that was outside the training range and was clamped to it."""
+
+    field: str = Field(examples=["engineer_experience_years"])
+    original: float = Field(examples=[35])
+    used: float = Field(examples=[20])
+
+
 class PredictionOut(BaseModel):
     """Predicted resolution time for one ticket."""
 
     model_config = ConfigDict(json_schema_extra={"examples": [{
-        "predicted_hours": 31.4,
-        "model_version": "0.3.0",
+        "predicted_hours": 2.3,
+        "model_version": "0.5.0",
         "request_id": "3f2b8c1e-6f1d-4c55-9a43-2f0c1f8f6b7a",
+        "adjusted_inputs": [{"field": "engineer_experience_years", "original": 35, "used": 20}],
     }]})
 
-    predicted_hours: float = Field(ge=0, description="Rounded to 1 decimal, never below 0")
+    predicted_hours: float = Field(
+        ge=0, description="Rounded to 1 decimal; never below the minimum ETA for the severity "
+                          "(1st percentile of training hours)")
     model_version: str
     request_id: str = Field(description="UUID4; also sent as the X-Request-ID header")
+    adjusted_inputs: list[AdjustedInput] = Field(
+        default_factory=list,
+        description="Numeric inputs outside the training range, clamped before predicting "
+                    "(empty when all inputs are in range)")
 
 
 class HealthOut(BaseModel):

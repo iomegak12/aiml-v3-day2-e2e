@@ -86,6 +86,9 @@
 .pill { font-size: .8rem; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); color: var(--text); }
 .pill-strong { background: var(--primary-soft); font-weight: 700; }
 .meta { font-size: .78rem; color: var(--text-muted); word-break: break-all; margin: 0; }
+.adjusted-note { margin-top: 12px; padding: 8px 12px; border-radius: 10px; background: var(--warning-soft); color: var(--warning-fg); font-size: .84rem; }
+.adjusted-note .adjusted-title { margin: 0 0 4px; font-weight: 600; }
+.adjusted-note ul { margin: 0; padding-left: 18px; }
 
 /* ---------- Banners ---------- */
 .banner { border-radius: 10px; padding: 10px 14px; font-size: .9rem; margin: 0 0 14px; }

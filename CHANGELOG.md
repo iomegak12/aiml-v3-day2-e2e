@@ -5,6 +5,28 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-23
+
+### Fixed
+
+- ETA could show **0 h**: linear regression predicted negative hours for short S1 tickets with experienced engineers (e.g. S1 Firewalls, 15 years → −6.3 h, clipped to 0; 14 of 971 test tickets negative)
+
+### Changed
+
+- Served model is now a **Gamma GLM** (`TweedieRegressor(power=2, link="log", alpha=0)`, same preprocessing): MAE 18.3 h (linear 18.5), RMSE 24.9 h (25.0), R² 0.20, S1 MAE 1.8 h (5.5), no negative predictions; the example S1 ticket now gets 2.3 h
+- `model.py`: `build_preprocessor()`, `build_linear_pipeline()` (reference), `severity_floors()`, `input_ranges()`; metadata adds `model_type`, `metrics.linear_regression`, `min_hours_by_severity` (1st percentile of training hours: S1 0.9, S2 6.9, S3 8.3, S4 11.6 h) and `input_ranges`
+- `scripts/train_model.py`: summary shows baseline, linear reference and GLM metrics plus the minimum ETAs
+- `predictor.py`: numeric inputs clamped to the training range (`clamp_inputs`), result never below the severity minimum (`clip_and_round(hours, minimum)`); `predict()` returns `Prediction(hours, adjusted_inputs)`; models trained before 0.5.0 still load (no floor, no clamping)
+- API: `PredictionOut.adjusted_inputs` (`[{field, original, used}]`, empty by default; additive, non-breaking); a warning is logged per clamped input with the `request_id`; OpenAPI descriptions updated
+- Web UI: "Adjusted to the range seen in training" note under the ETA (`js/adjustments.js`); footer mentions the GLM
+- Version 0.5.0 (`pyproject.toml`, image tags `netcore-tac-eta-api:0.5.0`, `netcore-tac-eta-web:0.5.0`); model retrained
+
+### Added
+
+- Notebook section 17 "Keeping ETAs Positive" (`[C50]`–`[C53]`): negative predictions, Gamma GLM, scorecard, safety nets; matching lecture notes
+- Tests: GLM pipeline, positive predictions for extreme inputs, floors and ranges in metadata, clamping and floor in the predictor, `adjusted_inputs` in schema and route (+ log), `tests/web/adjustments.test.mjs`
+- `docs/04-positive-eta.md` (prompt and Q&A log); README, TROUBLESHOOTING, CONTRIBUTING and SECURITY (supported 0.5.x) updated
+
 ## [0.4.0] - 2026-11-23
 
 ### Added

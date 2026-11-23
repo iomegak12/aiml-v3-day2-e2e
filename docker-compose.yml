@@ -4,7 +4,7 @@
 services:
   eta-api:
     build: .
-    image: netcore-tac-eta-api:0.4.0
+    image: netcore-tac-eta-api:0.5.0
     env_file:
       - path: .env
         required: false          # copy .env.example to .env to customise
@@ -33,7 +33,7 @@ services:
     build:
       context: .
       dockerfile: web/Dockerfile   # context allow-list: web/Dockerfile.dockerignore
-    image: netcore-tac-eta-web:0.4.0
+    image: netcore-tac-eta-web:0.5.0
     ports:
       - "${WEB_PORT:-80}:8080"
     depends_on:

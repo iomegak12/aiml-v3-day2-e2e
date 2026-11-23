@@ -17,6 +17,9 @@
 | Docker build fails installing a package that was just added | `requirements.lock` is stale | `uv export --frozen --no-default-groups --no-emit-project -o requirements.lock`, then rebuild |
 | `UnicodeEncodeError` printing `R²` / `−` on Windows | Console code page is not UTF-8 | `set PYTHONIOENCODING=utf-8` (or `$env:PYTHONIOENCODING="utf-8"` in PowerShell) |
 | `uv run pytest` → `PermissionError: [WinError 5] Access is denied: …\pytest-of-<user>\pytest-current` (Windows) | Stale or locked `pytest-current` link in pytest's temp folder | Delete `%TEMP%\pytest-of-<user>`, or run `uv run pytest --basetemp=.pytest_tmp` (add `.pytest_tmp/` to `.gitignore` if kept) |
+| ETA shows `0 h` (e.g. S1 + very experienced engineer) | Before 0.5.0 the linear model predicted negative hours, clipped to 0 | Fixed in 0.5.0 (Gamma GLM + minimum ETA per severity): `make train build start` |
+| Response has `adjusted_inputs` / UI says "Adjusted to the range seen in training" | A numeric input was outside the training range and was clamped (also logged as a warning) | Expected behaviour; check the input, or retrain on data that covers that range |
+| Notebook section 17: GLM much worse than in the API (S1 MAE ≈ 28 h) | `TweedieRegressor` default `alpha=1.0` (L2 penalty) shrinks the severity effect | Use `alpha=0.0`, as in `src/netcore_tac/model.py` |
 | `make: command not found` / `'make' is not recognized` | GNU Make not installed | Windows: `choco install make` (or `winget install GnuWin32.Make`); macOS: `xcode-select --install` |
 | `make predict`: `curl: (7) Failed to connect` | Stack not running, or the web UI is published on another port | `make start`; `make status`; use `make predict WEB_PORT=<port>` if `WEB_PORT` differs |
 | `make predict`: `curl: (22) … 503` | Container up but model not loaded | `make logs`; rebuild with `make train build start` |

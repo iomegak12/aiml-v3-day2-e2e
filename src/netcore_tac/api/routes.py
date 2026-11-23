@@ -1,5 +1,6 @@
 """HTTP routes: prediction, liveness and readiness."""
 
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, Request
@@ -12,6 +13,7 @@ from netcore_tac.api.problems import (
 )
 from netcore_tac.api.schemas import TICKET_EXAMPLE, HealthOut, PredictionOut, ReadyOut, TicketIn
 
+logger = logging.getLogger("netcore_tac.api")
 router = APIRouter()
 
 TICKET_EXAMPLES = {
@@ -40,7 +42,9 @@ def get_predictor(request: Request) -> Predictor:
         "Returns the predicted hours to resolve a ticket, using only fields known at "
         "triage. Replaces the fixed per-severity ETA (S1 4 h, S2 24 h, S3 48 h, S4 72 h). "
         "Unknown product families are accepted; null experience or first-response "
-        "times are filled with training medians."
+        "times are filled with training medians. Numeric inputs outside the training range "
+        "are clamped and listed in `adjusted_inputs`; the result is never below the minimum "
+        "ETA for the severity."
     ),
     responses=problem_responses(422, 429, 503, 500),
 )
@@ -49,9 +53,15 @@ def create_prediction(
     ticket: Annotated[TicketIn, Body(openapi_examples=TICKET_EXAMPLES)],
     predictor: Annotated[Predictor, Depends(get_predictor)],
 ) -> PredictionOut:
-    return PredictionOut(predicted_hours=predictor.predict(ticket),
+    request_id = get_request_id(request) or ""
+    result = predictor.predict(ticket)
+    for item in result.adjusted_inputs:
+        logger.warning("Input clamped to training range: %s %s -> %s request_id=%s",
+                       item["field"], item["original"], item["used"], request_id)
+    return PredictionOut(predicted_hours=result.hours,
                          model_version=predictor.model_version,
-                         request_id=get_request_id(request) or "")
+                         request_id=request_id,
+                         adjusted_inputs=result.adjusted_inputs)
 
 
 @router.get(

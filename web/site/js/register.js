@@ -1,5 +1,6 @@
 // Register Ticket page controller (DOM glue). All rules live in the pure modules it imports.
 
+import { formatAdjustments } from "./adjustments.js";
 import { predict } from "./api.js";
 import { chipToFormValues, formatLocalDateTime, SAMPLE_TICKETS } from "./chips.js";
 import { FIELD_LABELS } from "./config.js";
@@ -170,6 +171,9 @@ function showResult(payload, data, requestId) {
   $("eta-fixed").textContent = `Fixed ${payload.severity} ETA: ${comparison.fixed} h`;
   $("eta-delta").textContent = comparison.label;
   $("eta-meta").textContent = `model ${data.model_version} · request ${requestId ?? data.request_id}`;
+  const adjusted = formatAdjustments(data.adjusted_inputs);
+  $("eta-adjusted-list").replaceChildren(...adjusted.map((line) => el("li", "", line)));
+  $("eta-adjusted").hidden = adjusted.length === 0;
   resultEmpty.hidden = true;
   resultBody.hidden = false;
   resultHeading.focus();

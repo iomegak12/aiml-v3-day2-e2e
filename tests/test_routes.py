@@ -42,7 +42,18 @@ def test_create_prediction_returns_request_id(predictor):
     out = create_prediction(fake_request(predictor), TicketIn(**TICKET_EXAMPLE), predictor)
     assert out.request_id == "rid-1"
     assert out.model_version == predictor.model_version
-    assert out.predicted_hours >= 0
+    assert out.predicted_hours > 0
+    assert out.adjusted_inputs == [] or all(a.field for a in out.adjusted_inputs)
+
+
+def test_create_prediction_reports_and_logs_clamped_inputs(predictor, caplog):
+    ticket = TicketIn(**{**TICKET_EXAMPLE, "engineer_experience_years": 49.5})
+    with caplog.at_level("WARNING", logger="netcore_tac.api"):
+        out = create_prediction(fake_request(predictor, "rid-9"), ticket, predictor)
+    high = predictor.input_ranges["engineer_experience_years"][1]
+    adjusted = {a.field: (a.original, a.used) for a in out.adjusted_inputs}
+    assert adjusted["engineer_experience_years"] == (49.5, high)
+    assert "engineer_experience_years" in caplog.text and "rid-9" in caplog.text
 
 
 def test_routes_registered_with_tags():

@@ -25,6 +25,7 @@
 
 - Add runtime dependencies with `uv add <pkg>`; notebook-only ones with `uv add --group notebook <pkg>`
 - After any dependency change, refresh and commit `requirements.lock`
+- After changing the model or features: `make train build start`; the API reads the minimum ETAs and input ranges from `models/eta_model.json`
 - Keep training and serving logic in `src/netcore_tac/` (`cleaning.py`, `features.py`, `model.py`) — never copy it into the API or scripts
 
 ## Web UI (`web/`)

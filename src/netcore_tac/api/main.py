@@ -44,8 +44,10 @@ def build_description(metadata: dict[str, Any] | None) -> str:
     text = (
         "Predicts how many hours a NetCore TAC ticket will take to resolve, at triage time, "
         "replacing the fixed per-severity ETA (S1 4 h, S2 24 h, S3 48 h, S4 72 h).\n\n"
-        "**Model:** scikit-learn linear regression with median / most-frequent imputation, "
-        "scaling and one-hot encoding.\n\n"
+        "**Model:** scikit-learn Gamma GLM (TweedieRegressor, log link) with median / "
+        "most-frequent imputation, scaling and one-hot encoding. Predictions are always "
+        "positive and never below the minimum ETA for the severity; numeric inputs outside "
+        "the training range are clamped and reported in `adjusted_inputs`.\n\n"
         "**Inputs:** product family, severity, customer tier, region, channel, devices "
         "affected, software age, prior tickets (90 days), engineer experience, first-response "
         "time and created time (weekend flag).\n\n"

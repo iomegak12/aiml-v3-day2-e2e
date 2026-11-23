@@ -57,6 +57,15 @@ def test_missing_required_field_fails():
         TicketIn(**data)
 
 
+def test_prediction_out_adjusted_inputs_default_and_shape():
+    out = PredictionOut(predicted_hours=2.3, model_version="0.5.0", request_id="x")
+    assert out.adjusted_inputs == []
+    out = PredictionOut(predicted_hours=2.3, model_version="0.5.0", request_id="x",
+                        adjusted_inputs=[{"field": "engineer_experience_years", "original": 35, "used": 20}])
+    assert out.model_dump()["adjusted_inputs"] == [
+        {"field": "engineer_experience_years", "original": 35.0, "used": 20.0}]
+
+
 def test_prediction_out_rejects_negative_hours():
     with pytest.raises(ValidationError):
         PredictionOut(predicted_hours=-1, model_version="0.3.0", request_id="x")

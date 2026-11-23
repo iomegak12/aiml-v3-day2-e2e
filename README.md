@@ -3,7 +3,7 @@
 ML training demonstration for **NetCore TAC Desk** (fictional networking vendor): predict ticket resolution hours at triage time.
 
 - Business use case: [docs/business-use-case.txt](docs/business-use-case.txt)
-- Session logs (prompts + Q&A): [docs/01-initial-setup-data-generation.md](docs/01-initial-setup-data-generation.md), [docs/02-model-rest-api.md](docs/02-model-rest-api.md), [docs/03-web-ui.md](docs/03-web-ui.md)
+- Session logs (prompts + Q&A): [docs/01-initial-setup-data-generation.md](docs/01-initial-setup-data-generation.md), [docs/02-model-rest-api.md](docs/02-model-rest-api.md), [docs/03-web-ui.md](docs/03-web-ui.md), [docs/04-positive-eta.md](docs/04-positive-eta.md)
 - Build prompts: [docs/prompts/](docs/prompts/) — `001` REST API, `002` web UI
 - Web UI theme options (open in a browser): [docs/design/theme-options.html](docs/design/theme-options.html) — NetCore Light / Dark chosen
 - Lecture notes: `.temp/notebook-lecture-notes.md` (instructor-only, git-ignored); each entry matches a `[Cnn]` tag in the notebook
@@ -111,8 +111,10 @@ uv run python scripts/train_model.py            # --data data/netcore_tickets.cs
 ```
 
 - Same code as the notebook: `clean_tickets` → `add_tac_features` → 80/20 split (`random_state=42`) → fit on the training split → evaluate on the test split
-- Writes `models/eta_model.joblib` (pipeline) and `models/eta_model.json` (version, `trained_at`, scikit-learn version, row counts, features, test metrics)
-- Expected: 4,851 clean tickets; train 3,880 / test 971; baseline MAE 20.5 h; model MAE 18.5 h, RMSE 25.0 h, R² 0.20
+- **Served model: Gamma GLM** (`TweedieRegressor(power=2, link="log", alpha=0)`, notebook section 17). Linear regression (notebook section 15) is still trained as a reference, but it predicts *negative* hours for short S1 tickets handled by senior engineers (14 of 971 test tickets); the GLM's effects multiply instead of add, so every ETA is positive
+- Writes `models/eta_model.joblib` (pipeline) and `models/eta_model.json` (version, model type, `trained_at`, scikit-learn version, row counts, features, test metrics, `min_hours_by_severity`, `input_ranges`)
+- Expected: 4,851 clean tickets; train 3,880 / test 971; baseline MAE 20.5 h; linear regression MAE 18.5 h; **GLM MAE 18.3 h, RMSE 24.9 h, R² 0.20**, S1 MAE 1.8 h (linear 5.5 h), 0 negative predictions
+- Minimum ETA per severity (1st percentile of training hours): S1 0.9 h · S2 6.9 h · S3 8.3 h · S4 11.6 h
 
 ## REST API
 
@@ -120,6 +122,7 @@ uv run python scripts/train_model.py            # --data data/netcore_tickets.cs
 
 - **FastAPI + uvicorn**; `create_app(settings)` factory; the lifespan loads the model **once** at startup
 - **Same code for training and serving**: `predictor.py` reuses `features.add_tac_features` and the saved scikit-learn pipeline (no copied logic)
+- **Always a realistic ETA**: Gamma GLM (never negative) + per-severity minimum ETA from the model metadata; numeric inputs outside the training range (e.g. experience > 20 years, devices > 54) are clamped to it, listed in the response as `adjusted_inputs` and logged with the `request_id`
 - **Errors**: RFC 9457 `application/problem+json` for 404, 405, 422, 429, 500 and 503, with `request_id`
 - **Rate limit**: 100 requests / 60 s per client IP, then a 30 s block (429 + `Retry-After`); `/health` and `/ready` exempt
 - **No authentication, no CORS** (see [SECURITY.md](SECURITY.md)); configuration from `.env`
@@ -185,7 +188,9 @@ curl -s -X POST http://127.0.0.1:8000/api/v1/predictions \
        "customer_tier": "Gold", "region": "EMEA", "channel": "Phone", "devices_affected": 4,
        "software_version_months": 40, "prior_tickets_90d": 1,
        "engineer_experience_years": 6.5, "first_response_minutes": 20.0}'
-# {"predicted_hours":32.0,"model_version":"0.3.0","request_id":"…"}
+# {"predicted_hours":31.0,"model_version":"0.5.0","request_id":"…","adjusted_inputs":[]}
+# out-of-range input, e.g. "engineer_experience_years": 35 →
+#   "adjusted_inputs":[{"field":"engineer_experience_years","original":35.0,"used":20.0}]
 
 curl -s http://127.0.0.1:8000/health     # {"status":"ok"}
 curl -s http://127.0.0.1:8000/ready      # {"status":"ready","model_version":"0.3.0","trained_at":"…"}
@@ -236,7 +241,7 @@ Browser ──► web (NGINX, host :${WEB_PORT:-80} → container 8080)
 | Page | What it does |
 |------|--------------|
 | **Home** (`/`) | Fetches `/README.md` and renders it with the vendored `marked` (raw HTML escaped; repo links shown as text) |
-| **Register Ticket** (`/register.html`) | Form mirroring `TicketIn` + 5 sample chips → **Get ETA** → predicted hours vs the fixed severity ETA, `model_version`, `request_id`; "Registered this session" list (`sessionStorage`, max 20) |
+| **Register Ticket** (`/register.html`) | Form mirroring `TicketIn` + 5 sample chips → **Get ETA** → predicted hours vs the fixed severity ETA, `model_version`, `request_id`, a note when inputs were adjusted to the training range; "Registered this session" list (`sessionStorage`, max 20) |
 
 - **Run:** `make start`, then open <http://localhost> (or `http://localhost:<WEB_PORT>`); Swagger UI at <http://localhost/docs>
 - **Theme:** NetCore **Light** (default) / **Dark** toggle in the header, remembered in `localStorage`; palettes in [docs/design/theme-options.html](docs/design/theme-options.html)

@@ -4,24 +4,51 @@ import json
 
 import numpy as np
 import pytest
-from sklearn.linear_model import LinearRegression
+import pandas as pd
+from sklearn.linear_model import LinearRegression, TweedieRegressor
 
-from netcore_tac.features import ALL_FEATURES, EXCLUDED_COLUMNS, TARGET, add_tac_features
+from netcore_tac.features import (
+    ALL_FEATURES,
+    EXCLUDED_COLUMNS,
+    NUMERIC_FEATURES,
+    TARGET,
+    add_tac_features,
+)
 from netcore_tac.model import (
+    build_linear_pipeline,
     build_pipeline,
+    input_ranges,
     get_package_version,
     load_model,
     regression_metrics,
     save_model,
+    severity_floors,
 )
 
 
 def test_build_pipeline_steps():
     pipeline = build_pipeline()
     assert list(pipeline.named_steps) == ["prep", "model"]
-    assert isinstance(pipeline.named_steps["model"], LinearRegression)
+    glm = pipeline.named_steps["model"]
+    assert isinstance(glm, TweedieRegressor)
+    assert (glm.power, glm.link) == (2, "log")
     names = [name for name, _, _ in pipeline.named_steps["prep"].transformers]
     assert names == ["num", "flags", "cat"]
+
+
+def test_linear_reference_pipeline():
+    assert isinstance(build_linear_pipeline().named_steps["model"], LinearRegression)
+
+
+def test_predictions_always_positive_even_for_extreme_inputs(trained):
+    extremes = pd.DataFrame([{
+        "created_at": pd.Timestamp("2026-11-21 10:30"), "product_family": "Firewalls", "severity": sev,
+        "customer_tier": "Platinum", "region": "EMEA", "channel": "Phone", "devices_affected": devices,
+        "software_version_months": 0, "prior_tickets_90d": 0, "engineer_experience_years": exp,
+        "first_response_minutes": 0.0,
+    } for sev in ["S1", "S2", "S3", "S4"] for exp in [0.0, 15.0, 50.0] for devices in [1, 1000]])
+    predictions = trained.pipeline.predict(add_tac_features(extremes)[ALL_FEATURES])
+    assert (predictions > 0).all()
 
 
 def test_split_sizes(trained, small_clean_df):
@@ -33,13 +60,35 @@ def test_split_sizes(trained, small_clean_df):
 
 def test_metadata_fields(trained):
     meta = trained.metadata
-    for key in ["model_version", "trained_at", "scikit_learn_version", "rows", "features",
-                "metrics"]:
+    for key in ["model_version", "model_type", "trained_at", "scikit_learn_version", "rows",
+                "features", "metrics", "min_hours_by_severity", "input_ranges"]:
         assert key in meta
     assert meta["model_version"] == get_package_version()
-    for name in ["baseline", "model"]:
+    assert "Gamma GLM" in meta["model_type"]
+    for name in ["baseline", "linear_regression", "model"]:
         assert set(meta["metrics"][name]) == {"mae", "rmse", "r2"}
+    assert set(meta["min_hours_by_severity"]) == {"S1", "S2", "S3", "S4"}
+    assert all(hours > 0 for hours in meta["min_hours_by_severity"].values())
+    assert set(meta["input_ranges"]) == set(NUMERIC_FEATURES)
+    for low, high in meta["input_ranges"].values():
+        assert low <= high
     json.dumps(meta)   # must be JSON-serialisable
+
+
+def test_severity_floors_use_the_quantile_per_severity():
+    X = pd.DataFrame({"severity": ["S1"] * 3 + ["S4"] * 3})
+    y = pd.Series([1.0, 2.0, 3.0, 10.0, 20.0, 30.0])
+    assert severity_floors(X, y, quantile=0.0) == {"S1": 1.0, "S4": 10.0}
+    assert severity_floors(X, y, quantile=0.5) == {"S1": 2.0, "S4": 20.0}
+
+
+def test_input_ranges_ignore_blanks_and_keep_int_types(small_clean_df):
+    X = add_tac_features(small_clean_df)[ALL_FEATURES]
+    ranges = input_ranges(X)
+    assert ranges["devices_affected"] == [int(X["devices_affected"].min()), int(X["devices_affected"].max())]
+    assert isinstance(ranges["devices_affected"][0], int)
+    low, high = ranges["engineer_experience_years"]
+    assert low == X["engineer_experience_years"].min() and high == X["engineer_experience_years"].max()
 
 
 def test_no_leakage_column_in_inputs(trained):
