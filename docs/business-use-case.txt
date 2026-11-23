@@ -1,0 +1,50 @@
+Fictional Networking Vendor: NetCore
+Application Name: TAC Desk
+
+TAC Desk handles 2000+ escalated support tickets every year across 3 different regions
+AMER
+EMEA
+APJC
+
+Every ticket follows the lifecycle
+OPEN -> TRIAGE -> DIAGNOSE -> FIX -> VERIFY -> CLOSE -> RCA
+
+The problem
+Leadership keeps hearing the same complaints
+Customers - Your’ ETAs are meaningless, you said four hours - but it look 2 days
+Account Managers - I find about SLA breaches after the customer has already escalated to our VP
+Duty Managers - I can’t tell which tickets in the queue will turn into LONG RUNNING ONE, so I can’t staff the shifts properly
+
+Today, ETA come from a fixed value | rule
+S1 - 4 Hours
+S2 - 1 Day
+S3 - 2 Days
+S4 - 3 Days
+
+The business question
+When a ticket is triaged, can we predict how many hours it will take to resolve?
+
+Business Metrics already leadership team tracks
+MTTR (Mean time to resolve) - Average Resolution Hours
+SLA Breach Rate
+Tickets Volume | Backlog
+
+Common Data Structure
+Ticket ID (TKT-000001, TKT-000002)
+Created At (timestamp across 2025 - mostly on weekdays between 0800 AM to 0800 PM)
+Product Family (Routers, Switches, Firewalls, Wireless, SD-WAN) - Switches and Routes are common
+Severity (S1, S2, S3 and S4 with proababilities 5%, 20%, 45% and 30%)
+Customer Tier (Platinum, Gold, Silver)
+Region (AMER, EMEA, APJC)
+Channel (Email, Phone, Portal)
+Devices Affected (integer at least 1, right skewed (most 1-3, and a few about 50))
+Software Version in Months (integer 0-60)
+Prior Ticket in 90 Days (integer 0 to about 15)
+Engineer Experience in Years (float - 0.5 - 20 - one decimal should be fine)
+First Response in Minutes (float, faster for S1/S2 and Platinum customers)
+Customer Comments (one about 10 realistic comments including phrases about product family)
+Escalation Count (integer 0-5)
+Reopened (boolean, about 8% true, more likely for longer tickets)
+Resolution Code (Config Fix, Software Bug, Hardware RMA, Customer Environment - Hardware RMA and Software Bug tickets take much longer)
+SLA Breached Or Not (resolution hours above the SLA for the severity - s2 should have the highest breach rate)
+Resolution in Hours (positive integer - one decimal)
