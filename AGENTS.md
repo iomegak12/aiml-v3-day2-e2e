@@ -29,6 +29,7 @@
 | `data/`    | All data — sample, synthetic or generated       |
 | `docs/`    | Project and ML documentation                    |
 | `notebooks/` | Jupyter notebooks                             |
+| `models/`  | Trained model artefacts                         |
 
 - Keep a `.gitkeep` in every folder that would otherwise be empty.
 

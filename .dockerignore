@@ -1,0 +1,30 @@
+# Keep the build context small: only src/, models/, pyproject.toml,
+# requirements.lock, README.md and LICENSE are needed.
+.git
+.gitignore
+.github/
+.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+.temp/
+.archive/
+.claude/
+notebooks/
+*.ipynb
+data/
+docs/
+tests/
+scripts/
+.env
+.env.*
+!.env.example
+uv.lock
+Dockerfile
+docker-compose.yml
+Makefile
+.dockerignore
+*.md
+!README.md
+.vscode/
+.idea/

@@ -1,0 +1,13 @@
+{
+  "created_at": "2026-11-23T10:15:00",
+  "product_family": "Routers",
+  "severity": "S2",
+  "customer_tier": "Gold",
+  "region": "EMEA",
+  "channel": "Phone",
+  "devices_affected": 4,
+  "software_version_months": 40,
+  "prior_tickets_90d": 1,
+  "engineer_experience_years": 6.5,
+  "first_response_minutes": 20.0
+}

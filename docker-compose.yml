@@ -1,0 +1,28 @@
+# NetCore TAC ETA API — run with: docker compose up --build
+# Prerequisite: uv run python scripts/train_model.py  (the model is baked into the image)
+services:
+  eta-api:
+    build: .
+    image: netcore-tac-eta-api:0.3.0
+    env_file:
+      - path: .env
+        required: false          # copy .env.example to .env to customise
+    environment:
+      HOST: 0.0.0.0              # fixed inside the container; publish another port via PORT
+      PORT: "8000"
+    ports:
+      - "${PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      start_interval: 2s         # check every 2 s while starting, so `make start` returns quickly
+      retries: 3
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - "no-new-privileges:true"
+    mem_limit: 512m

@@ -9,6 +9,6 @@ Key rules (summary only; `AGENTS.md` wins on any conflict):
 - Brief by default — bullets, titles only
 - Questions as MCQs only
 - Non-obvious choice → show options, pros/cons, why NOT
-- Modular code in `src/`; scripts in `scripts/`; data in `data/`; docs in `docs/`
+- Modular code in `src/`; scripts in `scripts/`; data in `data/`; docs in `docs/`; trained models in `models/`
 - Mandatory pytest unit tests in `tests/`; no other test types unless asked
 - Update `README.md` and `CHANGELOG.md` on every change

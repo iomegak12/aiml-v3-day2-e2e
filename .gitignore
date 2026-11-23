@@ -34,3 +34,6 @@ Thumbs.db
 .temp/
 
 .archive
+# Trained model artefacts (rebuild with: uv run python scripts/train_model.py)
+models/*.joblib
+models/*.json
